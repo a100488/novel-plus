@@ -1,7 +1,7 @@
 java2nb:
   uploadPath: /var/pic/
   username: admin
-  password: 111111
+  password: Songanwei1004.
 logging:
   level:
     root: error
@@ -10,9 +10,9 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://mymysql:3306/novel_plus?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
-    password: test123456
+    password: Songanwei1004.
     #password:
     initialSize: 1
     minIdle: 3
@@ -37,9 +37,9 @@ spring:
     # 合并多个DruidDataSource的监控数据
     #useGlobalDataSourceStat: true
   redis:
-    host: 127.0.0.1
+    host: myredis
     port: 6379
-    password: test
+    password: Songanwei1004.
     # 连接超时时间（毫秒）
     timeout: 10000
     jedis:

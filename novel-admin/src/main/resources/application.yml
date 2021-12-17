@@ -3,7 +3,7 @@ server:
 #    tomcat:
 #        max-threads: 1000
 #        min-spare-threads: 30
-  port: 80
+  port: 8088
 #    uri-encoding: utf-8
 #security:
 #  basic:
@@ -15,8 +15,8 @@ spring:
   jackson:
     time-zone: GMT+8
     date-format: yyyy-MM-dd HH:mm:ss
-  profiles: 
-    active: dev
+  profiles:
+    active: prod
   servlet:
     multipart:
       max-file-size: 30Mb
