@@ -5,7 +5,7 @@
     <parent>
         <artifactId>novel</artifactId>
         <groupId>com.java2nb</groupId>
-        <version>3.5.4</version>
+        <version>3.6.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -31,6 +31,29 @@
 
     <build>
         <plugins>
+            <!-- 将相同groupId的依赖模块打包进来 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <configuration>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>${project.groupId}:*:*</include>
+                                </includes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <!--打包时去除第三方依赖-->
                 <groupId>org.springframework.boot</groupId>
@@ -62,6 +85,7 @@
                             <excludeTransitive>false</excludeTransitive>
                             <stripVersion>false</stripVersion>
                             <includeScope>runtime</includeScope>
+                            <excludeGroupIds>${project.groupId}</excludeGroupIds>
                         </configuration>
                     </execution>
                 </executions>

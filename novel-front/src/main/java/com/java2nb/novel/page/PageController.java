@@ -1,20 +1,18 @@
 package com.java2nb.novel.page;
 
 import com.java2nb.novel.controller.BaseController;
-import com.java2nb.novel.core.bean.PageBean;
 import com.java2nb.novel.core.bean.UserDetails;
 import com.java2nb.novel.core.utils.ThreadLocalUtil;
 import com.java2nb.novel.entity.*;
-import com.java2nb.novel.service.AuthorService;
-import com.java2nb.novel.service.BookService;
-import com.java2nb.novel.service.NewsService;
-import com.java2nb.novel.service.UserService;
+import com.java2nb.novel.service.*;
 import com.java2nb.novel.vo.BookCommentVO;
 import com.java2nb.novel.vo.BookSettingVO;
+import io.github.xxyopen.model.page.PageBean;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,6 +34,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Controller
 public class PageController extends BaseController {
 
+    @Value("${content.save.path}")
+    private String fileSavePath;
+
     private final BookService bookService;
 
     private final NewsService newsService;
@@ -46,6 +47,7 @@ public class PageController extends BaseController {
 
     private final ThreadPoolExecutor threadPoolExecutor;
 
+    private final Map<String, BookContentService> bookContentServiceMap;
 
     @RequestMapping("{url}.html")
     public String module(@PathVariable("url") String url) {
@@ -174,7 +176,7 @@ public class PageController extends BaseController {
      */
     @SneakyThrows
     @RequestMapping("/book/{bookId}/{bookIndexId}.html")
-    public String indexList(@PathVariable("bookId") Long bookId, @PathVariable("bookIndexId") Long bookIndexId, HttpServletRequest request, Model model) {
+    public String bookContent(@PathVariable("bookId") Long bookId, @PathVariable("bookIndexId") Long bookIndexId, HttpServletRequest request, Model model) {
         //加载小说基本信息线程
         CompletableFuture<Book> bookCompletableFuture = CompletableFuture.supplyAsync(() -> {
             //查询书籍
@@ -207,10 +209,10 @@ public class PageController extends BaseController {
             return nextBookIndexId;
         }, threadPoolExecutor);
 
-        //加载小说内容信息线程
-        CompletableFuture<BookContent> bookContentCompletableFuture = CompletableFuture.supplyAsync(() -> {
+        //加载小说内容信息线程，该线程在加载小说章节信息线程执行完毕后才执行
+        CompletableFuture<BookContent> bookContentCompletableFuture = bookIndexCompletableFuture.thenApplyAsync((bookIndex) -> {
             //查询内容
-            BookContent bookContent = bookService.queryBookContent(bookIndexId);
+            BookContent bookContent = bookContentServiceMap.get(bookIndex.getStorageType()).queryBookContent(bookId, bookIndexId);
             log.debug("加载小说内容信息线程结束");
             return bookContent;
         }, threadPoolExecutor);

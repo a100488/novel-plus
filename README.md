@@ -1,4 +1,4 @@
-[![index]( https://s1.ax1x.com/2020/07/03/NOSA5q.jpg )]( https://cloud.tencent.com/act/cps/redirect?redirect=1052&cps_key=736e609d66e0ac4e57813316cec6fd0b&from=console )
+[![index]( https://z3.ax1x.com/2021/11/11/IwNJAg.jpg )]( https://cloud.tencent.com/act/cps/redirect?redirect=1052&cps_key=736e609d66e0ac4e57813316cec6fd0b&from=console )
 
 # 小说精品屋-plus
 
@@ -35,6 +35,7 @@ Gitee仓库地址： https://gitee.com/novel_dev_team/novel-cloud
 - [x] 移动站与PC站站点分离，浏览器自动识别跳转。
 - [x] PC站UI更新。
 - [x] 支持前端模版自定义，内置多套模版。
+- [x] 可拓展的多种方式存储小说内容，内置数据库（分表）存储和TXT文本存储。
 - [x] 新闻模块。
 - [x] 排行榜。
 - [x] 小说评论模块。
@@ -289,6 +290,10 @@ docker安装教程：[点击前往](https://my.oschina.net/java2nb/blog/4271989)
 #### QQ交流群
 
 [点击前往官网查看](https://xiongxyang.gitee.io/service.htm)
+
+#### 微信交流群
+
+微信群二维码会过期，所以每周在公众号更新一次，请关注公众号“**IT进阶**”回复关键词“**微信群**”获取。
 
 问问题的三要素
 
