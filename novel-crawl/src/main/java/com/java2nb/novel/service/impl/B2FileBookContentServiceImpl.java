@@ -19,8 +19,10 @@ public class B2FileBookContentServiceImpl implements BookContentService {
 
     @Value("${content.save.b2path}")
     private String fileSavePath;
+    @Value("${content.save.storage}")
+    private String storage;
 
-    B2FileUtil b2FileUtil;
+    private final B2FileUtil b2FileUtil;
     @Override
     public void saveBookContent(List<BookContent> bookContentList,Long bookId) {
 
@@ -30,7 +32,7 @@ public class B2FileBookContentServiceImpl implements BookContentService {
 
     @Override
     public void saveBookContent(BookContent bookContent,Long bookId) {
-
+        System.out.println(storage);
         String fileSrc="/"+bookId+"/"+bookContent.getIndexId()+".txt";
         FileUtil.writeContentToFile(fileSavePath,fileSrc,bookContent.getContent());
         File file = new File(fileSavePath + fileSrc);

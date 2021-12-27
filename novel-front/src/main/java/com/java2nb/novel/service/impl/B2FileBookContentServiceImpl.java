@@ -3,6 +3,7 @@ package com.java2nb.novel.service.impl;
 import com.java2nb.novel.core.cache.CacheKey;
 import com.java2nb.novel.core.cache.CacheService;
 import com.java2nb.novel.core.utils.B2FileUtil;
+import com.java2nb.novel.core.utils.FileUtil;
 import com.java2nb.novel.entity.BookContent;
 import com.java2nb.novel.service.BookContentService;
 import lombok.RequiredArgsConstructor;
@@ -24,15 +25,16 @@ public class B2FileBookContentServiceImpl implements BookContentService {
     @Value("${content.save.b2path}")
     private String fileSavePath;
 
-    B2FileUtil b2FileUtil;
+    private final B2FileUtil b2FileUtil;
 
-    CacheService cacheService;
+    private final CacheService cacheService;
     @SneakyThrows
     @Override
     public BookContent queryBookContent(Long bookId, Long bookIndexId) {
         String fileSrc="/" + bookId + "/" + bookIndexId + ".txt";
         File file=new File(fileSavePath +fileSrc);
         if(!file.exists()){
+            FileUtil.writeContentToFile(fileSavePath,fileSrc,"");
             b2FileUtil.downloadByFileName(fileSrc,file);
             Date date = new Date();
             //设置缓存10天 如果文本超过10万则删除访问时间最早的

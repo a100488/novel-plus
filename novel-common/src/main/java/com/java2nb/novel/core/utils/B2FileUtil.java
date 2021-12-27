@@ -50,7 +50,7 @@ public class B2FileUtil {
             if (b2Bucket == null) {
                 synchronized (B2StorageClient.class) {
                     if (b2Bucket == null) {
-                        b2Bucket=client.getBucketOrNullByName(bucketName);
+                        b2Bucket=getClient().getBucketOrNullByName(bucketName);
                         if(b2Bucket==null){
                             logger.error("B2FileUtil getBucketOrNullByName  getBucket ERROR");
                             throw new RuntimeException("获取不到桶");

@@ -37,9 +37,8 @@ public class CrawlTxtTransSchedule {
     @Value("${content.save.b2path}")
     private String fileSavePath;
 
-    B2FileUtil b2FileUtil;
 
-    CacheService cacheService;
+    private final CacheService cacheService;
 
     /**
      * 10分钟转一次
@@ -62,10 +61,11 @@ public class CrawlTxtTransSchedule {
            String fileName=file1.getAbsolutePath().replaceAll(fileSavePath,"");
            log.info("deleteSchedule  "+fileName);
            String time= cacheService.get(BOOK_B2_TXT_CACHE+fileName);
-          if(time==null){
+          if(time==null||time.length()<1){
               file1.delete();
+          }else {
+              timeFileMap.put(Long.parseLong(time), file1);
           }
-           timeFileMap.put(Long.parseLong(time),file1);
        }
         if(files.size()>cacheCount){
             int deleteCount=files.size()-cacheCount;
