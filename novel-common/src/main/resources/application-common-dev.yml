@@ -73,5 +73,9 @@ sharding:
 
 content:
   save:
-    storage: db #存储介质，db：数据库，file：txt文本
-    path: /Users/xiongxiaoyang/books  #txt小说文本保存路径
+    storage: b2 #存储介质，db：数据库，file：txt文本 ,b2存储
+    path: /tmp/xs6org/books  #txt小说文本保存路径
+    b2path: /tmp/xs6org/b2/books  #b2小说文本保存路径  缓存10天
+    b2_app_key_id: cb8caf51444c
+    b2_app_key: 004fcbb2d7da293c7b6ab7b7fd0aace0f82f9a0c39
+    b2_app_bucket_name: xs6org

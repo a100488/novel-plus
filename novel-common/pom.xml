@@ -140,7 +140,18 @@
             <artifactId>xxy-util</artifactId>
             <version>${xxyopen.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.backblaze.b2</groupId>
+            <artifactId>b2-sdk-core</artifactId>
+            <version>${backblaze.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.backblaze.b2/b2-sdk-httpclient -->
+        <dependency>
+            <groupId>com.backblaze.b2</groupId>
+            <artifactId>b2-sdk-httpclient</artifactId>
+            <version>${backblaze.version}</version>
+        </dependency>
 
 
     </dependencies>

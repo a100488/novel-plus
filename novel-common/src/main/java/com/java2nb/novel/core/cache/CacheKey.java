@@ -69,4 +69,8 @@ public interface CacheKey {
      * 测试爬虫规则缓存
      */
     String BOOK_TEST_PARSE = "testParse";
+    /**
+     * 缓存文件 过期后删除
+     */
+    String BOOK_B2_TXT_CACHE = "b2TxtCache";
 }
