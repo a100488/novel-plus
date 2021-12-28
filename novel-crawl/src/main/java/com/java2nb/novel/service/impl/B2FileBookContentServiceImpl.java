@@ -37,13 +37,14 @@ public class B2FileBookContentServiceImpl implements BookContentService {
         FileUtil.writeContentToFile(fileSavePath,fileSrc,bookContent.getContent());
         File file = new File(fileSavePath + fileSrc);
         try {
+            //上传到oss 减少内存空间
             if (file.exists()) {
                 b2FileUtil.uploadSmallFile(file, fileSrc);
                 log.info("上传b2成功"+fileSrc);
             }
         }finally {
-
-            file.delete();
+            //本地只存200字  减少缓存  并且也可被百度爬虫抓取
+            FileUtil.writeContentToFile(fileSavePath,fileSrc,bookContent.getContent().substring(0,200));
         }
     }
 
