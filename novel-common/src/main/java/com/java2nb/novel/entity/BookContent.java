@@ -12,6 +12,8 @@ public class BookContent {
     @Generated("org.mybatis.generator.api.MyBatisGenerator")
     private String content;
 
+    private String contentUrl;
+
     @Generated("org.mybatis.generator.api.MyBatisGenerator")
     public Long getId() {
         return id;
@@ -40,5 +42,13 @@ public class BookContent {
     @Generated("org.mybatis.generator.api.MyBatisGenerator")
     public void setContent(String content) {
         this.content = content == null ? null : content.trim();
+    }
+
+    public String getContentUrl() {
+        return contentUrl;
+    }
+
+    public void setContentUrl(String contentUrl) {
+        this.contentUrl = contentUrl;
     }
 }

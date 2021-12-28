@@ -32,8 +32,8 @@ public class B2FileBookContentServiceImpl implements BookContentService {
 
     @Override
     public void saveBookContent(BookContent bookContent,Long bookId) {
-        System.out.println(storage);
-        String fileSrc="/"+bookId+"/"+bookContent.getIndexId()+".txt";
+
+        String fileSrc=bookId+"/"+bookContent.getIndexId()+".txt";
         FileUtil.writeContentToFile(fileSavePath,fileSrc,bookContent.getContent());
         File file = new File(fileSavePath + fileSrc);
         try {
@@ -43,7 +43,7 @@ public class B2FileBookContentServiceImpl implements BookContentService {
             }
         }finally {
 
-           // file.delete();
+            file.delete();
         }
     }
 

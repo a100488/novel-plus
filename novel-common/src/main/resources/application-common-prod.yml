@@ -82,6 +82,7 @@ content:
     b2_app_key_id: cb8caf51444c
     b2_app_key: 004fcbb2d7da293c7b6ab7b7fd0aace0f82f9a0c39
     b2_app_bucket_name: xs6org
+    b2_cacheSize: 10000 #缓存多个章小说
 
 
 

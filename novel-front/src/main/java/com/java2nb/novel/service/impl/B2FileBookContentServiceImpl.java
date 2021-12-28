@@ -14,9 +14,6 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.Date;
-
-import static com.java2nb.novel.core.cache.CacheKey.BOOK_B2_TXT_CACHE;
 
 @Service(value = "b2")
 @RequiredArgsConstructor
@@ -27,29 +24,27 @@ public class B2FileBookContentServiceImpl implements BookContentService {
 
     private final B2FileUtil b2FileUtil;
 
-    private final CacheService cacheService;
     @SneakyThrows
     @Override
     public BookContent queryBookContent(Long bookId, Long bookIndexId) {
-        String fileSrc="/" + bookId + "/" + bookIndexId + ".txt";
-        File file=new File(fileSavePath +fileSrc);
-        if(!file.exists()){
-            FileUtil.writeContentToFile(fileSavePath,fileSrc,"");
-            b2FileUtil.downloadByFileName(fileSrc,file);
-            Date date = new Date();
-            //设置缓存10天 如果文本超过10万则删除访问时间最早的
-            cacheService.set(BOOK_B2_TXT_CACHE+fileSrc,""+date.getTime(),60*60*24*10);
-        }
-        BufferedReader in = new BufferedReader(new FileReader(fileSavePath + "/" + bookId + "/" + bookIndexId + ".txt"));
-        StringBuffer sb = new StringBuffer();
-        String str;
-        while ((str = in.readLine()) != null) {
-            sb.append(str);
-        }
-        in.close();
+        long time=System.currentTimeMillis();
+        String fileSrc= bookId + "/" + bookIndexId + ".txt";
+//        File file=new File(fileSavePath +fileSrc);
+//        if(!file.exists()){
+//            b2FileUtil.downloadByFileName(fileSrc,file);
+//        }
+//        BufferedReader in = new BufferedReader(new FileReader(fileSavePath +fileSrc));
+//        StringBuffer sb = new StringBuffer();
+//        String str;
+//        while ((str = in.readLine()) != null) {
+//            sb.append(str);
+//        }
+//        in.close();
+//        System.out.println("耗时"+(System.currentTimeMillis()-time));
         return new BookContent() {{
+            setContentUrl("https://txt.xs6.org/file/xs6org/"+fileSrc);
             setIndexId(bookIndexId);
-            setContent(sb.toString());
+            setContent("");
         }};
     }
 }

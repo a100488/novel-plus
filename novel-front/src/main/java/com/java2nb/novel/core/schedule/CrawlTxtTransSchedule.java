@@ -1,10 +1,6 @@
 package com.java2nb.novel.core.schedule;
 
-import com.java2nb.novel.core.cache.CacheService;
-import com.java2nb.novel.core.utils.B2FileUtil;
-import com.java2nb.novel.core.utils.Constants;
-import com.java2nb.novel.entity.Book;
-import com.java2nb.novel.service.BookService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -14,15 +10,20 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static com.java2nb.novel.core.cache.CacheKey.BOOK_B2_TXT_CACHE;
 
 /**
- * 删除缓存10天未访问的文件
+ * 删除缓存文件
  *
  * @author Administrator
  */
@@ -36,9 +37,9 @@ public class CrawlTxtTransSchedule {
 
     @Value("${content.save.b2path}")
     private String fileSavePath;
+    @Value("${content.save.b2_cacheSize}")
+    private Integer cacheSize;
 
-
-    private final CacheService cacheService;
 
     /**
      * 10分钟转一次
@@ -47,7 +48,6 @@ public class CrawlTxtTransSchedule {
     @SneakyThrows
     public void deleteSchedule() {
         //缓存1W章节小说，其余的删除
-        int cacheCount=10000;
         log.info("CrawlTxtTransSchedule。。。。。。。。。。。。");
         File file=new File(fileSavePath);
        if(!file.exists()){
@@ -58,29 +58,35 @@ public class CrawlTxtTransSchedule {
         Map<Long,File> timeFileMap=new TreeMap<>();
 
        for(File file1:files){
-           String fileName=file1.getAbsolutePath().replaceAll(fileSavePath,"");
-           log.info("deleteSchedule  "+fileName);
-           String time= cacheService.get(BOOK_B2_TXT_CACHE+fileName);
-          if(time==null||time.length()<1){
-              file1.delete();
-          }else {
-              timeFileMap.put(Long.parseLong(time), file1);
-          }
+
+           Long time=  getFileCreateTime(file1);
+           log.info(file1.getAbsolutePath()+"---"+time);
+           timeFileMap.put(time, file1);
+
        }
-        if(files.size()>cacheCount){
-            int deleteCount=files.size()-cacheCount;
+        if(files.size()>cacheSize){
+            int deleteCount=files.size()-cacheSize;
             for(Long key:timeFileMap.keySet()){
                 if(deleteCount<=0){
                     break;
                 }
                 File file1=timeFileMap.get(key);
-                String fileName=file1.getAbsolutePath().replaceAll(fileSavePath,"");
                 file1.delete();
-                cacheService.del(BOOK_B2_TXT_CACHE+fileName);
                 deleteCount--;
             }
         }
 
+    }
+    private Long getFileCreateTime(File file){
+        try {
+            Path path= Paths.get(file.toURI());
+            BasicFileAttributeView basicview= Files.getFileAttributeView(path, BasicFileAttributeView.class, LinkOption.NOFOLLOW_LINKS );
+            BasicFileAttributes attr = basicview.readAttributes();
+            return attr.creationTime().toMillis();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return file.lastModified();
+        }
     }
     public static void digui(File dir,List<File> fileList){
         File[] files=dir.listFiles();
