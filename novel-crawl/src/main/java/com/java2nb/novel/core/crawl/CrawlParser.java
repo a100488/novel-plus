@@ -233,7 +233,16 @@ public class CrawlParser {
                         } else {
                             //章节插入
                             //设置目录和章节内容
-                            Long indexId = idWorker.nextId();
+                            Long indexId =null;
+                            try {
+                                 indexId = idWorker.nextId();
+                            }catch (Exception e){
+                                try {
+                                    indexId = idWorker.nextId();
+                                }catch (Exception e2){
+                                    indexId = idWorker.nextId();
+                                }
+                            }
                             bookIndex.setId(indexId);
                             bookIndex.setBookId(book.getId());
 

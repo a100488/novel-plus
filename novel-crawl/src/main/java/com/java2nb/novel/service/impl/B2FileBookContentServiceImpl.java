@@ -7,10 +7,12 @@ import com.java2nb.novel.service.BookContentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.List;
+
 
 @Slf4j
 @Service(value = "b2")
