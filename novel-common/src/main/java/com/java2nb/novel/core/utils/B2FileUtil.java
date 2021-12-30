@@ -22,7 +22,7 @@ import java.io.File;
  * @description B2文件上传
  * @date 2021/12/27
  */
-@ConditionalOnProperty(prefix = "content.save", name = "storage", havingValue = "b2")
+
 @RequiredArgsConstructor
 @Service
 public class B2FileUtil {

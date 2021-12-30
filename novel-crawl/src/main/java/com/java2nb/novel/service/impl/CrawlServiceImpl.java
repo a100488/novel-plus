@@ -327,7 +327,19 @@ public class CrawlServiceImpl implements CrawlService {
                 book.setCrawlBookId(bookId);
                 book.setCrawlSourceId(sourceId);
                 book.setCrawlLastTime(new Date());
-                book.setId(IdWorker.INSTANCE.nextId());
+                try {
+                    book.setId(IdWorker.INSTANCE.nextId());
+                }catch (Exception e){
+                    try {
+                        book.setId(IdWorker.INSTANCE.nextId());
+                    }catch (Exception e1){
+                        try {
+                            book.setId(IdWorker.INSTANCE.nextId());
+                        }catch (Exception e2){
+                            e2.printStackTrace();
+                        }
+                    }
+                }
                 //解析章节目录
                 boolean parseIndexContentResult = CrawlParser.parseBookIndexAndContent(bookId, book, ruleBean, new HashMap<>(0), chapter -> {
                     bookService.saveBookAndIndexAndContent(book, chapter.getBookIndexList(), chapter.getBookContentList());
