@@ -29,22 +29,22 @@ public class B2FileBookContentServiceImpl implements BookContentService {
     public BookContent queryBookContent(Long bookId, Long bookIndexId) {
         long time=System.currentTimeMillis();
         String fileSrc= bookId + "/" + bookIndexId + ".txt";
-//        File file=new File(fileSavePath +fileSrc);
-//        if(!file.exists()){
-//            b2FileUtil.downloadByFileName(fileSrc,file);
-//        }
-        BufferedReader in = new BufferedReader(new FileReader(fileSavePath +fileSrc));
+        File file=new File(fileSavePath +fileSrc);
         StringBuffer sb = new StringBuffer();
-        String str;
-        while ((str = in.readLine()) != null) {
-            sb.append(str);
+        if(file.exists()){
+            BufferedReader in = new BufferedReader(new FileReader(fileSavePath +fileSrc));
+            String str;
+            while ((str = in.readLine()) != null) {
+                sb.append(str);
+            }
+            in.close();
         }
-        in.close();
+
         System.out.println("耗时"+(System.currentTimeMillis()-time));
         return new BookContent() {{
             setContentUrl("https://txt.xs6.org/file/xs6org/"+fileSrc);
             setIndexId(bookIndexId);
-            setContent("");
+            setContent(sb.toString());
         }};
     }
 }
