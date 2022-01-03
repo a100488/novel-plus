@@ -9,7 +9,7 @@ spring:
     #Redis服务器连接端口
     port: 6379
     #Redis服务器连接密码
-    #password: test
+    password: Songanwei1004.
     jedis:
       pool:
         #连接池最大连接数（使用负值表示没有限制）
@@ -23,7 +23,7 @@ spring:
     #连接超时时间（毫秒）
     timeout: 30000
   datasource:
-    url: jdbc:mysql://8.142.67.28:3306/novel_plus?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://127.0.0.1:3306/novel_plus?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
     password: Songanwei1004.
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -48,7 +48,7 @@ sharding:
       ds0:
         type: com.zaxxer.hikari.HikariDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://8.142.67.28:3306/novel_plus?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+        jdbc-url: jdbc:mysql://127.0.0.1:3306/novel_plus?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
         username: root
         password: Songanwei1004.
     #      ds1:
@@ -84,7 +84,7 @@ logging:
 
 content:
   save:
-    storage: db #存储介质，db：数据库，file：txt文本 ,b2存储
+    storage: b2 #存储介质，db：数据库，file：txt文本 ,b2存储
     path: /tmp/xs6org/books  #txt小说文本保存路径
     b2path: /tmp/xs6org/b2/books  #b2小说文本保存路径  缓存10天
     b2_app_key_id: cb8caf51444c

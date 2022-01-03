@@ -189,18 +189,27 @@ public class CrawlServiceImpl implements CrawlService {
             String[] s= bookDetailUrl.split("\\{bookId}");
            String bookUrl=singleTask.getSourceBookId().replace(s[0],"");
             if(s.length>1) {
-                bookUrl=   bookUrl.substring(0,bookUrl.lastIndexOf(s[1]));
+                if(!s[1].equals("/")){
+                    bookUrl=   bookUrl.substring(0,bookUrl.length()-s[1].length());
+                }
+
             }
             singleTask.setSourceBookId(bookUrl);
             CrawlParser.parseBook(ruleBean, bookUrl,book -> {
                 singleTask.setAuthorName(book.getAuthorName());
                 singleTask.setBookName(book.getBookName());
             });
+            if(singleTask.getBookName()==null||singleTask.getBookName().length()<1){
+                throw new BusinessException(ResponseStatus.BOOK_EXISTS2);
+            }
             if (bookService.queryIsExistByBookNameAndAuthorName(singleTask.getBookName(), singleTask.getAuthorName())) {
                 throw new BusinessException(ResponseStatus.BOOK_EXISTS);
 
             }
-        }catch (Exception e){
+        }catch (BusinessException e1){
+            throw e1;
+        }
+        catch (Exception e){
             throw new BusinessException(ResponseStatus.BOOK_EXISTS2);
         }
 
