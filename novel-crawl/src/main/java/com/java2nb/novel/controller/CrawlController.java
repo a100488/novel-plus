@@ -132,7 +132,14 @@ public class CrawlController {
         return RestResult.ok();
 
     }
+    @PostMapping("addCrawlSingleTaskUrl")
+    public RestResult<Void> addCrawlSingleTaskUrl(CrawlSingleTask singleTask){
 
+        crawlService.addCrawlSingleTaskUrl(singleTask);
+
+        return RestResult.ok();
+
+    }
     /**
      * 单本采集任务分页列表查询
      * */

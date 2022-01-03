@@ -2,6 +2,8 @@ package com.java2nb.novel.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageHelper;
+import com.java2nb.novel.entity.BookIndex;
+import com.java2nb.novel.utils.Constants;
 import io.github.xxyopen.model.page.PageBean;
 import com.java2nb.novel.core.cache.CacheKey;
 import com.java2nb.novel.core.cache.CacheService;
@@ -176,7 +178,37 @@ public class CrawlServiceImpl implements CrawlService {
 
 
     }
+    @Override
+    public void addCrawlSingleTaskUrl(CrawlSingleTask singleTask) {
+        try {
+            CrawlSource crawlSource = queryCrawlSource(singleTask.getSourceId());
 
+            crawlSource.getCrawlRule();
+            RuleBean ruleBean = new ObjectMapper().readValue(crawlSource.getCrawlRule(), RuleBean.class);
+            String bookDetailUrl = ruleBean.getBookDetailUrl();
+            String[] s= bookDetailUrl.split("\\{bookId}");
+           String bookUrl=singleTask.getSourceBookId().replace(s[0],"");
+            if(s.length>1) {
+                bookUrl=   bookUrl.substring(0,bookUrl.lastIndexOf(s[1]));
+            }
+            singleTask.setSourceBookId(bookUrl);
+            CrawlParser.parseBook(ruleBean, bookUrl,book -> {
+                singleTask.setAuthorName(book.getAuthorName());
+                singleTask.setBookName(book.getBookName());
+            });
+            if (bookService.queryIsExistByBookNameAndAuthorName(singleTask.getBookName(), singleTask.getAuthorName())) {
+                throw new BusinessException(ResponseStatus.BOOK_EXISTS);
+
+            }
+        }catch (Exception e){
+            throw new BusinessException(ResponseStatus.BOOK_EXISTS2);
+        }
+
+        singleTask.setCreateTime(new Date());
+        crawlSingleTaskMapper.insertSelective(singleTask);
+
+
+    }
     @Override
     public PageBean<CrawlSingleTask> listCrawlSingleTaskByPage(int page, int pageSize) {
         PageHelper.startPage(page, pageSize);

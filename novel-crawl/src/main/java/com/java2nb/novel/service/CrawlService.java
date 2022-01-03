@@ -85,6 +85,12 @@ public interface CrawlService {
     void addCrawlSingleTask(CrawlSingleTask singleTask);
 
     /**
+     * 新增单本采集任务 书的详情页url
+     * @param singleTask
+     */
+    void addCrawlSingleTaskUrl(CrawlSingleTask singleTask);
+
+    /**
      * 单本采集任务分页列表查询
      * @param page 当前页码
      * @param pageSize 分页大小

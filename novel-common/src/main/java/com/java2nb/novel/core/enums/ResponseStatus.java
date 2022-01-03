@@ -41,7 +41,9 @@ public enum ResponseStatus implements IResultCode {
     /**
      * 小说相关错误
      */
-    BOOK_EXISTS(5001,"该小说已存在")
+    BOOK_EXISTS(5001,"该小说已存在"),
+
+  BOOK_EXISTS2(5002,"该小说爬虫源不存在")
 
             ,
     /**

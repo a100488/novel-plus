@@ -62,15 +62,15 @@
                                     <option value="7">女生频道</option>
                                 </select>
                                 </li>
-                                示例：<b>73_73911</b>
+                                示例：<b>https://www.xbiquge.la/48/48900/</b>
                                 <li><input type="text" id="sourceBookId" class="s_input icon_key"
-                                           placeholder="采集的源站小说ID"/></li>
-                                示例：<b>苏厨</b>
-                                <li><input type="text" id="bookName" class="s_input icon_key"
-                                           placeholder="采集的小说名"/></li>
-                                示例：<b>二子从周</b>
-                                <li><input type="text" id="authorName" class="s_input icon_key"
-                                           placeholder="采集的小说作者名"/></li>
+                                           placeholder="采集的源站小说IDUrl"/></li>
+<!--                                示例：<b>苏厨</b>-->
+<!--                                <li><input type="text" id="bookName" class="s_input icon_key"-->
+<!--                                           placeholder="采集的小说名"/></li>-->
+<!--                                示例：<b>二子从周</b>-->
+<!--                                <li><input type="text" id="authorName" class="s_input icon_key"-->
+<!--                                           placeholder="采集的小说作者名"/></li>-->
 
                                 <!--示例：<b>https://m.xdingdiann.com/sort/0/1.html</b>
                                 <li><input type="text" id="updateBookListUrl" class="s_input icon_key"
@@ -144,28 +144,28 @@
         var sourceBookId = $("#sourceBookId").val();
 
         if (!sourceBookId){
-            layer.alert("采集的源站小说ID不能为空");
+            layer.alert("采集的源站小说IDUrl不能为空");
             return;
         }
 
-        var bookName = $("#bookName").val();
-
-        if (!bookName){
-            layer.alert("采集的小说名不能为空");
-            return;
-        }
-
-        var authorName = $("#authorName").val();
-
-        if (!authorName){
-            layer.alert("采集的小说作者名不能为空");
-            return;
-        }
+        // var bookName = $("#bookName").val();
+        //
+        // if (!bookName){
+        //     layer.alert("采集的小说名不能为空");
+        //     return;
+        // }
+        //
+        // var authorName = $("#authorName").val();
+        //
+        // if (!authorName){
+        //     layer.alert("采集的小说作者名不能为空");
+        //     return;
+        // }
 
         $.ajax({
             type: "POST",
-            url: "/crawl/addCrawlSingleTask",
-            data: {'sourceId': sourceId, 'sourceName': sourceName,'catId':catId,'sourceBookId' : sourceBookId,'bookName':bookName,'authorName':authorName},
+            url: "/crawl/addCrawlSingleTaskUrl",
+            data: {'sourceId': sourceId, 'sourceName': sourceName,'catId':catId,'sourceBookId' : sourceBookId},
             dataType: "json",
             success: function (data) {
                 if (data.code == 200) {
