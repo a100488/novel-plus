@@ -12,7 +12,11 @@ public class BookContent {
     @Generated("org.mybatis.generator.api.MyBatisGenerator")
     private String content;
 
+    private Long bookId;
+
     private String contentUrl;
+
+    private Integer errorIndex;
 
     @Generated("org.mybatis.generator.api.MyBatisGenerator")
     public Long getId() {
@@ -29,6 +33,8 @@ public class BookContent {
         return indexId;
     }
 
+
+
     @Generated("org.mybatis.generator.api.MyBatisGenerator")
     public void setIndexId(Long indexId) {
         this.indexId = indexId;
@@ -43,12 +49,26 @@ public class BookContent {
     public void setContent(String content) {
         this.content = content == null ? null : content.trim();
     }
+    public Long getBookId() {
+        return bookId;
+    }
 
+    public void setBookId(Long bookId) {
+        this.bookId = bookId;
+    }
     public String getContentUrl() {
         return contentUrl;
     }
 
     public void setContentUrl(String contentUrl) {
         this.contentUrl = contentUrl;
+    }
+
+    public Integer getErrorIndex() {
+        return errorIndex;
+    }
+
+    public void setErrorIndex(Integer errorIndex) {
+        this.errorIndex = errorIndex;
     }
 }
