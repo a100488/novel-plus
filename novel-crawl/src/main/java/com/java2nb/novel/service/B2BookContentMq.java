@@ -3,10 +3,7 @@ package com.java2nb.novel.service;
 import com.java2nb.novel.core.utils.B2FileUtil;
 import com.java2nb.novel.core.utils.FileUtil;
 import com.java2nb.novel.entity.BookContent;
-import com.java2nb.novel.mapper.BookContentDynamicSqlSupport;
-import com.java2nb.novel.mapper.BookContentMapper;
-import com.java2nb.novel.mapper.BookDynamicSqlSupport;
-import com.java2nb.novel.mapper.CrawlBookMapper;
+import com.java2nb.novel.mapper.*;
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,10 +44,9 @@ public class B2BookContentMq {
     private String storage;
     @Autowired
     private  B2FileUtil b2FileUtil;
+
     @Autowired
-    private  BookContentMapper bookContentMapper;
-    @Autowired
-    private  CrawlBookMapper bookMapper;
+    private BookIndexMapper bookIndexMapper;
     /**
      * 消费者
      */
@@ -84,7 +80,7 @@ public class B2BookContentMq {
                     log.error("数据库不存在,次数过多 一抛弃"+bookContent.getBookId()+"--"+bookContent.getIndexId());
                     return;
                 }
-               long count= bookContentMapper.count(countFrom(BookContentDynamicSqlSupport.bookContent).where(BookContentDynamicSqlSupport.indexId, isEqualTo(bookContent.getIndexId())).build()
+               long count= bookIndexMapper.count(countFrom(BookIndexDynamicSqlSupport.bookIndex).where(BookIndexDynamicSqlSupport.id, isEqualTo(bookContent.getIndexId())).build()
                         .render(RenderingStrategies.MYBATIS3));
                if(count<1){
                    log.error("数据库不存在,把它放到队列后面"+bookContent.getBookId()+"--"+bookContent.getIndexId());
@@ -104,8 +100,6 @@ public class B2BookContentMq {
                     if (file.exists()) {
                         b2FileUtil.uploadSmallFile(file, fileSrc);
                         log.info("上传b2成功"+fileSrc);
-                        bookContentMapper.delete(deleteFrom(BookContentDynamicSqlSupport.bookContent).where(BookContentDynamicSqlSupport.indexId, isEqualTo(bookContent.getIndexId())).build()
-                                .render(RenderingStrategies.MYBATIS3));
 
                     }
                 }finally {

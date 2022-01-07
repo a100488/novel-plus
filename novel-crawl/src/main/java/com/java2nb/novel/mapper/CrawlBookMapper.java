@@ -17,7 +17,9 @@ public interface CrawlBookMapper extends BookMapper {
      * @param limit 查询条数
      * @return 小说集合
      * */
-    List<Book> queryNeedUpdateBook(@Param("startDate") Date startDate, @Param("limit") int limit);
+    List<Book> queryNeedUpdateBook(@Param("books") List<String> books,@Param("startDate") Date startDate, @Param("limit") int limit);
+
+    List<Book> queryNeedUpdateBook2(@Param("startDate") Date startDate, @Param("limit") int limit);
 
     /**
      * 查询小说总字数

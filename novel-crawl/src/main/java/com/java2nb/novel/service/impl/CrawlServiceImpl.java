@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
 
 import static com.java2nb.novel.core.utils.HttpUtil.getByHttpClientWithChrome;
 import static com.java2nb.novel.mapper.CrawlSourceDynamicSqlSupport.*;
-import static org.mybatis.dynamic.sql.SqlBuilder.isEqualTo;
+import static org.mybatis.dynamic.sql.SqlBuilder.*;
 import static org.mybatis.dynamic.sql.select.SelectDSL.select;
 
 /**
@@ -238,11 +238,14 @@ public class CrawlServiceImpl implements CrawlService {
     }
 
     @Override
-    public CrawlSingleTask getCrawlSingleTask() {
-
+    public CrawlSingleTask getCrawlSingleTask(String[] books) {
+        if(books==null||books.length<1){
+            books=new String[]{"1"};
+        }
         List<CrawlSingleTask> list = crawlSingleTaskMapper.selectMany(select(CrawlSingleTaskDynamicSqlSupport.crawlSingleTask.allColumns())
                 .from(CrawlSingleTaskDynamicSqlSupport.crawlSingleTask)
-                .where(CrawlSingleTaskDynamicSqlSupport.taskStatus, isEqualTo((byte) 2))
+                .where(CrawlSingleTaskDynamicSqlSupport.taskStatus, isEqualTo((byte) 2)).
+                        and(CrawlSingleTaskDynamicSqlSupport.sourceBookId,isNotIn(books))
                 .orderBy(CrawlSingleTaskDynamicSqlSupport.createTime)
                 .limit(1)
                 .build()

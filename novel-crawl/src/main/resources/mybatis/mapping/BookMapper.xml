@@ -7,6 +7,19 @@
 
         select id,crawl_source_id,crawl_book_id,crawl_last_time,pic_url,word_count
         from book where last_index_update_time > #{startDate} and crawl_source_id is not null
+        and id not in
+        <foreach item="book" collection="books" open="(" separator="," close=")">
+            #{book}
+        </foreach>
+        order by crawl_last_time
+        limit ${limit}
+
+
+    </select>
+    <select id="queryNeedUpdateBook2" resultType="com.java2nb.novel.entity.Book">
+
+        select id,crawl_source_id,crawl_book_id,crawl_last_time,pic_url,word_count
+        from book where last_index_update_time > #{startDate} and crawl_source_id is not null
         order by crawl_last_time
         limit ${limit}
 

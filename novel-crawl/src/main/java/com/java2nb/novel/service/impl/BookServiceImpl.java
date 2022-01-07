@@ -13,10 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -102,8 +99,15 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<Book> queryNeedUpdateBook(Date startDate, int limit) {
-        List<Book> books = bookMapper.queryNeedUpdateBook(startDate, limit);
+    public List<Book> queryNeedUpdateBook(String[] booksStrs, Date startDate, int limit) {
+        List<String> bookIds;
+        List<Book> books;
+        if(booksStrs.length>0) {
+           bookIds = Arrays.asList(booksStrs);
+           books =bookMapper.queryNeedUpdateBook(bookIds,startDate, limit);
+        }else{
+            books =bookMapper.queryNeedUpdateBook2(startDate, limit);
+        }
         if (books.size() > 0) {
             //更新最后抓取时间为当前时间
             bookMapper.updateCrawlLastTime(books, new Date());
