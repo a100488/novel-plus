@@ -108,7 +108,7 @@ public interface CrawlService {
      * 获取采集任务
      * @return 采集任务
      * */
-    CrawlSingleTask getCrawlSingleTask(String[] books);
+    List<CrawlSingleTask> getCrawlSingleTask(int size);
 
     /**
      * 更新单本采集任务

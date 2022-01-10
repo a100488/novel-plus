@@ -26,7 +26,7 @@ import static org.mybatis.dynamic.sql.SqlBuilder.*;
 @Slf4j
 @Component
 public class B2BookContentMq {
-    final BlockingQueue<BookContent> blockingQueue = new ArrayBlockingQueue<>(10000);
+    final BlockingQueue<BookContent> blockingQueue = new ArrayBlockingQueue<>(100000);
     public void producerBookContent(BookContent bookContent, Long bookId){
         bookContent.setBookId(bookId);
         blockingQueue.add(bookContent);
@@ -36,6 +36,9 @@ public class B2BookContentMq {
     public void consumerBookContent(){
         Consumer c2 = new Consumer(blockingQueue);
         new Thread(c2, "c2").start();
+        new Thread(c2).start();
+        new Thread(c2).start();
+        new Thread(c2).start();
     }
 
     @Value("${content.save.b2path}")
@@ -76,7 +79,7 @@ public class B2BookContentMq {
                     errorIndex=0;
                 }
 
-                if(errorIndex>=5){
+                if(errorIndex>=3){
                     log.error("数据库不存在,次数过多 一抛弃"+bookContent.getBookId()+"--"+bookContent.getIndexId());
                     return;
                 }

@@ -103,7 +103,7 @@ public class B2FileUtil {
 
         final B2UploadListener uploadListener = (progress) -> {
             final double percent = (100. * (progress.getBytesSoFar() / (double) progress.getLength()));
-            logger.info(String.format("  progress(%3.2f, %s)", percent, progress.toString()));
+            logger.debug(String.format("  progress(%3.2f, %s)", percent, progress.toString()));
         };
 
 

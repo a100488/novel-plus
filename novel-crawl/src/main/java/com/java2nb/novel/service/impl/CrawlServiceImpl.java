@@ -3,6 +3,7 @@ package com.java2nb.novel.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageHelper;
 import com.java2nb.novel.entity.BookIndex;
+import com.java2nb.novel.mapper.*;
 import com.java2nb.novel.utils.Constants;
 import io.github.xxyopen.model.page.PageBean;
 import com.java2nb.novel.core.cache.CacheKey;
@@ -18,10 +19,6 @@ import io.github.xxyopen.web.util.BeanUtil;
 import com.java2nb.novel.entity.Book;
 import com.java2nb.novel.entity.CrawlSingleTask;
 import com.java2nb.novel.entity.CrawlSource;
-import com.java2nb.novel.mapper.CrawlSingleTaskDynamicSqlSupport;
-import com.java2nb.novel.mapper.CrawlSingleTaskMapper;
-import com.java2nb.novel.mapper.CrawlSourceDynamicSqlSupport;
-import com.java2nb.novel.mapper.CrawlSourceMapper;
 import com.java2nb.novel.service.BookService;
 import com.java2nb.novel.service.CrawlService;
 import com.java2nb.novel.vo.CrawlSingleTaskVO;
@@ -56,7 +53,7 @@ public class CrawlServiceImpl implements CrawlService {
 
     private final CrawlSourceMapper crawlSourceMapper;
 
-    private final CrawlSingleTaskMapper crawlSingleTaskMapper;
+    private final CrawlSingleTaskExMapper crawlSingleTaskMapper;
 
     private final BookService bookService;
 
@@ -238,20 +235,26 @@ public class CrawlServiceImpl implements CrawlService {
     }
 
     @Override
-    public CrawlSingleTask getCrawlSingleTask(String[] books) {
-        if(books==null||books.length<1){
-            books=new String[]{"1"};
-        }
-        List<CrawlSingleTask> list = crawlSingleTaskMapper.selectMany(select(CrawlSingleTaskDynamicSqlSupport.crawlSingleTask.allColumns())
-                .from(CrawlSingleTaskDynamicSqlSupport.crawlSingleTask)
-                .where(CrawlSingleTaskDynamicSqlSupport.taskStatus, isEqualTo((byte) 2)).
-                        and(CrawlSingleTaskDynamicSqlSupport.sourceBookId,isNotIn(books))
-                .orderBy(CrawlSingleTaskDynamicSqlSupport.createTime)
-                .limit(1)
-                .build()
-                .render(RenderingStrategies.MYBATIS3));
+    public synchronized List<CrawlSingleTask> getCrawlSingleTask(int size) {
 
-        return list.size() > 0 ? list.get(0) : null;
+        long time=System.currentTimeMillis();
+        return crawlSingleTaskMapper.getCrawlSingleTask(size);
+//                selectMany(select(CrawlSingleTaskDynamicSqlSupport.crawlSingleTask.allColumns())
+//                .from(CrawlSingleTaskDynamicSqlSupport.crawlSingleTask)
+//                .where(CrawlSingleTaskDynamicSqlSupport.taskStatus, isEqualTo((byte) 2))
+//                       // and(CrawlSingleTaskDynamicSqlSupport.sourceBookId,isNotIn(books))
+//                .orderBy(CrawlSingleTaskDynamicSqlSupport.createTime)
+//                .limit(1)
+//                .build()
+//                .render(RenderingStrategies.MYBATIS3));
+
+       // CrawlSingleTask task= list.size() > 0 ? list.get(0) : null;
+//        if(task!=null){
+//            task.setCreateTime(new Date());
+//            crawlSingleTaskMapper.updateByPrimaryKey(task);
+//        }
+     //   log.info("查询单个任务耗时"+(System.currentTimeMillis()-time)+",得到任务:"+(task==null?"空":task.getBookName()));
+     //   return task;
     }
 
     @Override

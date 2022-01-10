@@ -23,18 +23,31 @@ spring:
     #连接超时时间（毫秒）
     timeout: 30000
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/novel_plus?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://8.142.67.28:3306/novel_plus?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
     password: Songanwei1004.
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
+      data-source-properties:
+        setIdleTimeout: 60000
+        setConnectionTimeout: 60000
+        setValidationTimeout: 3000
+        setLoginTimeout: 5
+        setMaxLifetime: 60000
+#      客户端（即您）等待来自池的连接的最大毫秒数
       connection-timeout: 60000
-      minIdle: 10
-      maxPoolSize: 20
-      isAutoCommit: true
+      #此属性控制允许连接在池中保持空闲状态的最长时间
       idle-timeout: 600000
+      #此属性控制池中连接的最大生存期。使用中的连接永远不会停止使用，只有在关闭连接后才将其删除
       max-lifetime: 28740000
+      #以验证与数据库的连接仍然有效
       connection-test-query: SELECT 1
+      #此属性控制允许池达到的最大大小，包括空闲和使用中的连接。基本上，此值将确定到数据库后端的最大实际连接数。
+      maximum-pool-size: 500
+      validation-timeout: 1000
+      login-timeout: 5
+      #此属性控制默认情况下从池获得的连接是否处于只读模式
+      read-only: false
 
 
 ####使用shardingJdbc时，
@@ -48,9 +61,30 @@ sharding:
       ds0:
         type: com.zaxxer.hikari.HikariDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
-        jdbc-url: jdbc:mysql://127.0.0.1:3306/novel_plus?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+        jdbc-url: jdbc:mysql://8.142.67.28:3306/novel_plus?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
         username: root
         password: Songanwei1004.
+        hikari:
+          data-source-properties:
+            setIdleTimeout: 60000
+            setConnectionTimeout: 60000
+            setValidationTimeout: 3000
+            setLoginTimeout: 5
+            setMaxLifetime: 60000
+          #      客户端（即您）等待来自池的连接的最大毫秒数
+          connection-timeout: 60000
+          #此属性控制允许连接在池中保持空闲状态的最长时间
+          idle-timeout: 600000
+          #此属性控制池中连接的最大生存期。使用中的连接永远不会停止使用，只有在关闭连接后才将其删除
+          max-lifetime: 28740000
+          #以验证与数据库的连接仍然有效
+          connection-test-query: SELECT 1
+          #此属性控制允许池达到的最大大小，包括空闲和使用中的连接。基本上，此值将确定到数据库后端的最大实际连接数。
+          maximum-pool-size: 500
+          validation-timeout: 3000
+          login-timeout: 5
+          #此属性控制默认情况下从池获得的连接是否处于只读模式
+          read-only: false
     #      ds1:
     #        type: com.alibaba.druid.pool.DruidDataSource
     #        driver-class-name: com.mysql.jdbc.Driver
@@ -78,7 +112,7 @@ sharding:
 logging:
   level:
     root: error
-    com.java2nb: error
+    com.java2nb: info
 
 
 

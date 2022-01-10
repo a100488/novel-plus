@@ -17,10 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -41,13 +38,14 @@ public class StarterListener implements ServletContextListener {
 
     private static ThreadPoolExecutor executor;
     static {
-        executor= new ThreadPoolExecutor(5, 5,
+        executor= new ThreadPoolExecutor(10, 10,
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>());
     }
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        for (int i = 0; i < updateThreadCount; i++) {
+        cacheService.del("runPachong");
+        for (int i = 0; i < updateThreadCount ; i++) {
             new Thread(() -> {
                 log.info("程序启动,开始执行自动更新线程。。。");
                 while (true) {
@@ -106,56 +104,82 @@ public class StarterListener implements ServletContextListener {
 
 
         }
-
-        for(int i=0;i<10;i++){
-            executor.submit(() -> {
-                log.info("程序启动,开始执行单本采集任务线程。。。");
-                while (true) {
-                    CrawlSingleTask task = null;
-                    byte crawlStatus = 0;
+        Set<String> taskAlls=new CopyOnWriteArraySet<>();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true){
                     try {
+                      List<CrawlSingleTask> taskList=  crawlService.getCrawlSingleTask(10);
 
+                      if(taskList!=null&&taskList.size()>0){
+                          for(int i=0;i<taskList.size();i++){
+                              CrawlSingleTask task=taskList.get(i);
+                              if(taskAlls.contains(task.getSourceId()+"_"+task.getSourceBookId())){
+                                  continue;
+                              }
+                              executor.submit(new Runnable() {
+                                  @Override
+                                  public void run() {
+                                      taskAlls.add(task.getSourceId()+"_"+task.getSourceBookId());
+                                      paquTask(task);
+                                  }
+                              });
+                          }
+                      }
 
-                        //获取采集任务
-                        task = crawlService.getCrawlSingleTask(getPachongLock());
-                        if (task != null) {
-
-                            if(!isRun(task.getSourceId()+"_"+task.getSourceBookId())) {
-                                setPachongLock(task.getSourceId()+"_"+task.getSourceBookId());
-                            }else{
-                                continue;
-                            }
-                            //查询爬虫规则
-                            CrawlSource source = crawlService.queryCrawlSource(task.getSourceId());
-                            RuleBean ruleBean = new ObjectMapper().readValue(source.getCrawlRule(), RuleBean.class);
-
-                            try {
-                                if (crawlService.parseBookAndSave(task.getCatId(), ruleBean, task.getSourceId(), task.getSourceBookId())) {
-                                    //采集成功
-                                    crawlStatus = 1;
-                                }
-                            }catch (Exception e){
-                                e.printStackTrace();
-                            }finally {
-                                delPachongLock(task.getSourceId()+"_"+task.getSourceBookId());
-                            }
-
-                        }
-
-                        //休眠1分钟
-                        TimeUnit.MINUTES.sleep(1);
-
+                        TimeUnit.SECONDS.sleep(60);
                     } catch (Exception e) {
-                        log.error(e.getMessage(), e);
+                        e.printStackTrace();
                     }
-                    if (task != null) {
-                        crawlService.updateCrawlSingleTask(task, crawlStatus);
-                    }
-
                 }
-            });
-        }
+            }
+        }).start();
 
+
+    }
+    public void paquTask(CrawlSingleTask task){
+        byte crawlStatus = 0;
+        try {
+
+
+            //获取采集任务
+            if (task != null) {
+
+                if(!isRun(task.getSourceId()+"_"+task.getSourceBookId())) {
+                    setPachongLock(task.getSourceId()+"_"+task.getSourceBookId());
+                }else{
+                    String sourceBookIdStr= cacheService.get("runPachong");
+                    log.info(task.getBookName()+sourceBookIdStr);
+                    //TimeUnit.SECONDS.sleep(60);
+                    return;
+                }
+                //查询爬虫规则
+                CrawlSource source = crawlService.queryCrawlSource(task.getSourceId());
+                RuleBean ruleBean = new ObjectMapper().readValue(source.getCrawlRule(), RuleBean.class);
+
+                try {
+                    log.info("爬取"+task.getBookName());
+                    if (crawlService.parseBookAndSave(task.getCatId(), ruleBean, task.getSourceId(), task.getSourceBookId())) {
+                        //采集成功
+                        log.error("caiji sucess"+task.getBookName());
+                        crawlStatus = 1;
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }finally {
+                    delPachongLock(task.getSourceId()+"_"+task.getSourceBookId());
+                }
+
+            }
+
+
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        if (task != null) {
+            crawlService.updateCrawlSingleTask(task, crawlStatus);
+        }
     }
 
     public synchronized  String[] getPachongLock(){
@@ -177,6 +201,7 @@ public class StarterListener implements ServletContextListener {
         return isRun;
     }
     public synchronized void setPachongLock(String sourceBookId){
+
         StringBuilder values= new StringBuilder();
         String[] booksStrs=getPachongLock();
         for(String bookId:booksStrs){
