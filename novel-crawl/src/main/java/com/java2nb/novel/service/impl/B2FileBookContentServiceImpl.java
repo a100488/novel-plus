@@ -28,26 +28,32 @@ public class B2FileBookContentServiceImpl implements BookContentService {
 
 
 
-
+    private final BookContentMapper bookContentMapper;
 
     private final B2BookContentMq b2BookContentMq;
     @Override
     public void saveBookContent(List<BookContent> bookContentList,Long bookId) {
 
-
+        bookContentMapper.insertMultiple(bookContentList);
         bookContentList.forEach(bookContent -> b2BookContentMq.producerBookContent(bookContent,bookId));
 
     }
 
     @Override
     public void saveBookContent(BookContent bookContent,Long bookId) {
-
+        bookContentMapper.insertSelective(bookContent);
         b2BookContentMq.producerBookContent(bookContent,bookId);
 
     }
 
     @Override
     public void updateBookContent(BookContent bookContent,Long bookId) {
+        bookContentMapper.update(update(BookContentDynamicSqlSupport.bookContent)
+                .set(BookContentDynamicSqlSupport.content)
+                .equalTo(bookContent.getContent())
+                .where(BookContentDynamicSqlSupport.indexId,isEqualTo(bookContent.getIndexId()))
+                .build()
+                .render(RenderingStrategies.MYBATIS3));
         b2BookContentMq.producerBookContent(bookContent,bookId);
     }
 }

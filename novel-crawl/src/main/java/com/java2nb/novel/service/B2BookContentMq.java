@@ -14,6 +14,7 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import static com.java2nb.novel.mapper.BookContentDynamicSqlSupport.bookContent;
 import static org.mybatis.dynamic.sql.SqlBuilder.*;
@@ -34,6 +35,7 @@ public class B2BookContentMq {
 
     @PostConstruct
     public void consumerBookContent(){
+
         Consumer c2 = new Consumer(blockingQueue);
         new Thread(c2, "c2").start();
         new Thread(c2).start();
@@ -47,7 +49,8 @@ public class B2BookContentMq {
     private String storage;
     @Autowired
     private  B2FileUtil b2FileUtil;
-
+    @Autowired
+    private  BookContentMapper bookContentMapper;
     @Autowired
     private BookIndexMapper bookIndexMapper;
     /**
@@ -103,7 +106,14 @@ public class B2BookContentMq {
                     if (file.exists()) {
                         b2FileUtil.uploadSmallFile(file, fileSrc);
                         log.info("上传b2成功"+fileSrc);
+                        try {
+                            bookContentMapper.delete(
+                                    deleteFrom(BookContentDynamicSqlSupport.bookContent)
+                                            .where(BookContentDynamicSqlSupport.indexId, isEqualTo(bookContent.getIndexId())
+                                            ).build().render(RenderingStrategies.MYBATIS3));
+                        }catch (Exception e){
 
+                        }
                     }
                 }finally {
                     file.delete();

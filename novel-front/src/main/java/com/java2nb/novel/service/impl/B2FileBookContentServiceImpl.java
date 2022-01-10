@@ -41,11 +41,12 @@ public class B2FileBookContentServiceImpl implements BookContentService {
 
     private static final RestTemplate restTemplate = RestTemplateUtil.getInstance("utf-8");
     private final BookContentMapper bookContentMapper;
+
     @SneakyThrows
     @Override
     public BookContent queryBookContent(Long bookId, Long bookIndexId) {
-        long time=System.currentTimeMillis();
-        String fileSrc= bookId + "/" + bookIndexId + ".txt";
+        long time = System.currentTimeMillis();
+        String fileSrc = bookId + "/" + bookIndexId + ".txt";
 //        File file=new File(fileSavePath +fileSrc);
 //        StringBuffer sb = new StringBuffer();
 //        if(file.exists()){
@@ -67,12 +68,33 @@ public class B2FileBookContentServiceImpl implements BookContentService {
 //            System.out.println("耗时"+(System.currentTimeMillis()-time));
 //            return bookContents.get(0);
 //        }
-        String body = HttpUtil.getByHttpClientWithChrome("https://txt.xs6.org/file/"+bucketName+"/"+fileSrc);
-        System.out.println("耗时"+(System.currentTimeMillis()-time));
-        return new BookContent() {{
-            //setContentUrl("https://txt.xs6.org/file/xs6org/"+fileSrc);
-            setIndexId(bookIndexId);
-            setContent(body);
-        }};
+        BookContent content=null;
+        try {
+            String  body = HttpUtil.getByHttpClientWithChrome("https://txt.xs6.org/file/" + bucketName + "/" + fileSrc);
+            if(body!=null&&body.length()>0) {
+                content = new BookContent() {{
+                    //setContentUrl("https://txt.xs6.org/file/xs6org/"+fileSrc);
+                    setIndexId(bookIndexId);
+                    setContent(body);
+                }};
+                System.out.println("耗时" + (System.currentTimeMillis() - time));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (content == null) {
+            SelectStatementProvider selectStatement = select(BookContentDynamicSqlSupport.id, BookContentDynamicSqlSupport.content)
+                    .from(bookContent)
+                    .where(BookContentDynamicSqlSupport.indexId, isEqualTo(bookIndexId))
+                    .limit(1)
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
+            List<BookContent> bookContents = bookContentMapper.selectMany(selectStatement);
+            if (bookContents.size() > 0) {
+                System.out.println("耗时" + (System.currentTimeMillis() - time));
+                content= bookContents.get(0);
+            }
+        }
+        return content;
     }
 }
