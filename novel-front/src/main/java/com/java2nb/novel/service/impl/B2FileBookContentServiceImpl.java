@@ -73,7 +73,6 @@ public class B2FileBookContentServiceImpl implements BookContentService {
             String  body = HttpUtil.getByHttpClientWithChrome("https://txt.xs6.org/file/" + bucketName + "/" + fileSrc);
             if(body!=null&&body.length()>0) {
                 content = new BookContent() {{
-                    //setContentUrl("https://txt.xs6.org/file/xs6org/"+fileSrc);
                     setIndexId(bookIndexId);
                     setContent(body);
                 }};
@@ -94,6 +93,12 @@ public class B2FileBookContentServiceImpl implements BookContentService {
                 System.out.println("耗时" + (System.currentTimeMillis() - time));
                 content= bookContents.get(0);
             }
+        }
+        if (content == null) {
+            content = new BookContent() {{
+                setIndexId(bookIndexId);
+                setContent("正在手打中...");
+            }};
         }
         return content;
     }

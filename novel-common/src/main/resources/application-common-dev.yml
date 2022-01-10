@@ -23,11 +23,11 @@ spring:
     #连接超时时间（毫秒）
     timeout: 30000
   datasource:
-#    url: jdbc:mysql://8.142.67.28:3306/novel_plus?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    url: jdbc:mysql://localhost:3306/novel_plus?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://8.142.67.28:3306/novel_plus?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+#    url: jdbc:mysql://127.0.0.1:3306/novel_plus?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
-    #password: Songanwei1004.
-    password: 12345678
+    password: Songanwei1004.
+    #password: 12345678
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 
@@ -42,11 +42,11 @@ sharding:
       ds0:
         type: com.zaxxer.hikari.HikariDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
-        #jdbc-url: jdbc:mysql://8.142.67.28:3306/novel_plus?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
-        jdbc-url: jdbc:mysql://localhost:3306/novel_plus?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+        jdbc-url: jdbc:mysql://8.142.67.28:3306/novel_plus?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+        #jdbc-url: jdbc:mysql://127.0.0.1:3306/novel_plus?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
         username: root
-        #password: Songanwei1004.
-        password: 12345678
+        password: Songanwei1004.
+        #password: 12345678
     #      ds1:
     #        type: com.alibaba.druid.pool.DruidDataSource
     #        driver-class-name: com.mysql.jdbc.Driver
@@ -82,5 +82,5 @@ content:
     b2path: /tmp/xs6org/b2/books/  #b2小说文本保存路径  缓存10天
     b2_app_key_id: cb8caf51444c
     b2_app_key: 004fcbb2d7da293c7b6ab7b7fd0aace0f82f9a0c39
-    b2_app_bucket_name: xs6orgtest
+    b2_app_bucket_name: xs6org
     b2_cacheSize: 10000 #缓存多个章小说

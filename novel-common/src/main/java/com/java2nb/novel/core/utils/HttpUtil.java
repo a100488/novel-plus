@@ -1,5 +1,7 @@
 package com.java2nb.novel.core.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -7,6 +9,7 @@ import org.springframework.web.client.RestTemplate;
  * @author Administrator
  */
 public class HttpUtil {
+    private static Logger logger = LoggerFactory.getLogger(HttpUtil.class);
 
     private static RestTemplate restTemplate = RestTemplateUtil.getInstance("utf-8");
 
@@ -27,6 +30,7 @@ public class HttpUtil {
     }
 
     public static String getByHttpClientWithChrome(String url) {
+        long time=System.currentTimeMillis();
         try {
 
             HttpHeaders headers = new HttpHeaders();
@@ -40,7 +44,7 @@ public class HttpUtil {
                 return null;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("请求失败:"+url+"耗时"+(System.currentTimeMillis()-time),e);
             return null;
         }
     }

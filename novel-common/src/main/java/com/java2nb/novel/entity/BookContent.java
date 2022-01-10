@@ -14,7 +14,6 @@ public class BookContent {
 
     private Long bookId;
 
-    private String contentUrl;
 
     private Integer errorIndex;
 
@@ -56,13 +55,7 @@ public class BookContent {
     public void setBookId(Long bookId) {
         this.bookId = bookId;
     }
-    public String getContentUrl() {
-        return contentUrl;
-    }
 
-    public void setContentUrl(String contentUrl) {
-        this.contentUrl = contentUrl;
-    }
 
     public Integer getErrorIndex() {
         return errorIndex;
