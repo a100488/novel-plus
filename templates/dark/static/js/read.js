@@ -142,7 +142,7 @@ function set(intype,p){
             //开灯
             lightdiv.innerHTML = "关灯";
             lightdiv.className="button lightoff";
-            nr_body.style.backgroundColor = "#fff";
+            nr_body.style.backgroundColor = "#ececec";
             nr1.style.color = "#000";
             //nr_title.style.color = "#000";
             //pt_prev.style.cssText = "";
@@ -161,7 +161,7 @@ function set(intype,p){
             lightdiv.innerHTML = "关灯";
             lightdiv.className="button lightoff";
             huyandiv.className="button huyanoff";
-            nr_body.style.backgroundColor = "#005716";
+            nr_body.style.backgroundColor = "#c7edcc";
             nr1.style.color = "#000";
             //pt_prev.style.cssText = "background-color:#0E7A18;color:#000;";
             //pt_mulu.style.cssText = "background-color:#0E7A18;color:#000;";

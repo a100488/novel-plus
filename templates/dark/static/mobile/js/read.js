@@ -106,9 +106,9 @@ function getset1(){
 //内容页应用设置
 function set(intype,p){
 
-    //var nr_title =  document.getElementById("top1");//文章标题
-    //var nr_title =  document.getElementById("nr_title");//文章标题
-    //var shuqian_2 = document.getElementById("shuqian_2");//书签链接
+    var nr_title =  document.getElementById("top1");//文章标题
+    var nr_title =  document.getElementById("nr_title");//文章标题
+    var shuqian_2 = document.getElementById("shuqian_2");//书签链接
 
     //var pt_prev =  document.getElementById("pt_prev1");
     //var pt_mulu =  document.getElementById("pt_mulu1");
@@ -142,7 +142,7 @@ function set(intype,p){
             //开灯
             lightdiv.innerHTML = "关灯";
             lightdiv.className="button lightoff";
-            nr_body.style.backgroundColor = "#fff";
+            nr_body.style.backgroundColor = "#ececec";
             nr1.style.color = "#000";
             //nr_title.style.color = "#000";
             //pt_prev.style.cssText = "";
@@ -161,7 +161,7 @@ function set(intype,p){
             lightdiv.innerHTML = "关灯";
             lightdiv.className="button lightoff";
             huyandiv.className="button huyanoff";
-            nr_body.style.backgroundColor = "#005716";
+            nr_body.style.backgroundColor = "#c7edcc";
             nr1.style.color = "#000";
             //pt_prev.style.cssText = "background-color:#0E7A18;color:#000;";
             //pt_mulu.style.cssText = "background-color:#0E7A18;color:#000;";
@@ -169,7 +169,7 @@ function set(intype,p){
             //pb_prev.style.cssText = "background-color:#0E7A18;color:#000;";
             //pb_mulu.style.cssText = "background-color:#0E7A18;color:#000;";
             //pb_next.style.cssText = "background-color:#0E7A18;color:#000;";
-            shuqian_2.style.color = "#000";
+           // shuqian_2.style.color = "#000";
         }
     }
     //字体
