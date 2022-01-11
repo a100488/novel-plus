@@ -1,9 +1,9 @@
 #网站配置
 website:
   #网站名
-  name: 小说楼
+  name: 爱看小说
   #域名
-  domain: xs6.org
+  domain: akxs.org
   #SEO关键词
   keyword: ${website.name},小说,好看的小说,全本小说网,无弹窗小说,全本小说免费
   #SEO描述

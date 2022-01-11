@@ -118,7 +118,6 @@
                             </div>
                         </div>
                         <div class="txtwrap" th:if="${!needBuy}">
-                            <input type="hidden" id="contentUrl" th:value="${bookContent.contentUrl}"/>
                             <div id="showReading" class="readBox" style="font-size: 16px; font-family: microsoft yahei" th:utext="${bookContent.content}">
 
 
@@ -224,26 +223,7 @@
             $(".logo img").attr("src", "/images/logo_white.png");
         }
     }
-    var contentUrl=$("#contentUrl").val();
-    if(contentUrl){
-        var html='  <div class="pc_bar" style="display: none;">\n' +
-            '                                    <a href="javascript:void(0);" class="icon_pc" onclick="javascript:uFans.startSupportRead();">\n' +
-            '                                        <span><i class="icon_yb"></i><em>捧场</em></span>\n' +
-            '                                    </a>\n' +
-            '                                </div>';
 
-        $.ajax({
-            type: "get",
-            url: contentUrl,
-            dataType: "text",
-            success: function (data) {
-                $("#showReading").html(data+"<br/>"+html);
-            },
-            error: function () {
-                layer.alert('网络异常');
-            }
-        })
-    }
     //查询是否在书架
     $.ajax({
         type: "get",

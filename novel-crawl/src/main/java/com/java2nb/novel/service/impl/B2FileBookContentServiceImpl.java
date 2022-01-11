@@ -10,7 +10,6 @@ import com.java2nb.novel.service.BookContentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
@@ -29,45 +28,32 @@ public class B2FileBookContentServiceImpl implements BookContentService {
 
 
 
-    @Value("${content.save.b2path}")
-    private String fileSavePath;
-    @Value("${content.save.storage}")
-    private String storage;
-    @Autowired
-    private  B2FileUtil b2FileUtil;
+    private final BookContentMapper bookContentMapper;
 
     private final B2BookContentMq b2BookContentMq;
     @Override
     public void saveBookContent(List<BookContent> bookContentList,Long bookId) {
 
-
-        bookContentList.forEach(bookContent -> saveBookContent(bookContent,bookId));
+        bookContentMapper.insertMultiple(bookContentList);
+        bookContentList.forEach(bookContent -> b2BookContentMq.producerBookContent(bookContent,bookId));
 
     }
 
     @Override
     public void saveBookContent(BookContent bookContent,Long bookId) {
-
-
-        //消费逻辑
-        String fileSrc=bookId+"/"+bookContent.getIndexId()+".txt";
-        FileUtil.writeContentToFile(fileSavePath,fileSrc,bookContent.getContent());
-        File file = new File(fileSavePath + fileSrc);
-        try {
-            //上传到oss 减少磁盘空间
-            if (file.exists()) {
-                b2FileUtil.uploadSmallFile(file, fileSrc);
-                log.info("上传b2成功"+fileSrc);
-
-            }
-        }finally {
-            file.delete();
-        }
+        bookContentMapper.insertSelective(bookContent);
+        b2BookContentMq.producerBookContent(bookContent,bookId);
 
     }
 
     @Override
     public void updateBookContent(BookContent bookContent,Long bookId) {
-        saveBookContent(bookContent,bookId);
+        bookContentMapper.update(update(BookContentDynamicSqlSupport.bookContent)
+                .set(BookContentDynamicSqlSupport.content)
+                .equalTo(bookContent.getContent())
+                .where(BookContentDynamicSqlSupport.indexId,isEqualTo(bookContent.getIndexId()))
+                .build()
+                .render(RenderingStrategies.MYBATIS3));
+        b2BookContentMq.producerBookContent(bookContent,bookId);
     }
 }
