@@ -58,31 +58,31 @@ public class B2BookContentProcess {
     public void consumerBookContent(){
 
 
-        SelectStatementProvider selectStatement = select(BookIndexDynamicSqlSupport.id, BookIndexDynamicSqlSupport.bookId, BookIndexDynamicSqlSupport.indexNum, BookIndexDynamicSqlSupport.indexName, BookIndexDynamicSqlSupport.updateTime, BookIndexDynamicSqlSupport.isVip)
-                .from(bookIndex)
-                .where(BookIndexDynamicSqlSupport.storageType, isEqualTo("b2"))
-                .orderBy(BookIndexDynamicSqlSupport.createTime)
+
+        SelectStatementProvider selectStatement2 = select(BookContentDynamicSqlSupport.id, BookContentDynamicSqlSupport.content)
+                .from(bookContent)
                 .limit(1000)
                 .build()
                 .render(RenderingStrategies.MYBATIS3);
+        List<BookContent> bookContents=bookContentMapper.selectMany(selectStatement2);
 
-        List<BookIndex>  list =  bookIndexMapper.selectMany(selectStatement);
-        while (list!=null&&list.size()>0){
-            for(BookIndex bookIndex: list){
+        while (bookContents!=null&&bookContents.size()>0){
+            for(BookContent bookContent: bookContents){
                 executor.submit(new Runnable() {
                     @Override
                     public void run() {
                         try{
-                            SelectStatementProvider selectStatement2 = select(BookContentDynamicSqlSupport.id, BookContentDynamicSqlSupport.content)
-                                    .from(bookContent)
-                                    .where(BookContentDynamicSqlSupport.indexId, isEqualTo(bookIndex.getId()))
+                            SelectStatementProvider selectStatement = select(BookIndexDynamicSqlSupport.id, BookIndexDynamicSqlSupport.bookId, BookIndexDynamicSqlSupport.indexNum, BookIndexDynamicSqlSupport.indexName, BookIndexDynamicSqlSupport.updateTime, BookIndexDynamicSqlSupport.isVip)
+                                    .from(bookIndex)
+                                    .where(BookIndexDynamicSqlSupport.id, isEqualTo(bookContent.getIndexId()))
                                     .limit(1)
                                     .build()
                                     .render(RenderingStrategies.MYBATIS3);
-                            List<BookContent> bookContents=bookContentMapper.selectMany(selectStatement2);
-                            if(bookContents.size()>0){
-                                BookContent bookContent=bookContents.get(0);
-                                Long bookId=bookContent.getBookId();
+
+                            List<BookIndex>  bookIndexList =  bookIndexMapper.selectMany(selectStatement);
+                            if(bookIndexList.size()>0){
+                                BookIndex bookIndex2=bookIndexList.get(0);
+                                Long bookId=bookIndex2.getBookId();
                                 //消费逻辑
                                 String fileSrc=bookId+"/"+bookContent.getIndexId()+".txt";
                                 FileUtil.writeContentToFile(fileSavePath,fileSrc,bookContent.getContent());
@@ -93,10 +93,13 @@ public class B2BookContentProcess {
                                         b2FileUtil.uploadSmallFile(file, fileSrc);
                                         log.info("上传b2成功"+fileSrc);
                                         try {
+                                            bookIndex2.setStorageType("b2");
+                                            bookIndexMapper.updateByPrimaryKey(bookIndex2);
                                             bookContentMapper.delete(
                                                     deleteFrom(BookContentDynamicSqlSupport.bookContent)
                                                             .where(BookContentDynamicSqlSupport.indexId, isEqualTo(bookContent.getIndexId())
                                                             ).build().render(RenderingStrategies.MYBATIS3));
+
                                         }catch (Exception e){
 
                                         }
