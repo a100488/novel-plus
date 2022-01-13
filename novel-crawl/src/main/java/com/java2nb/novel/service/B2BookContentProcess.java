@@ -59,9 +59,9 @@ public class B2BookContentProcess {
 
 
 
-        SelectStatementProvider selectStatement2 = select(BookContentDynamicSqlSupport.id, BookContentDynamicSqlSupport.content)
+        SelectStatementProvider selectStatement2 = select(BookContentDynamicSqlSupport.id, BookContentDynamicSqlSupport.content,BookContentDynamicSqlSupport.indexId)
                 .from(bookContent)
-                .limit(1000)
+                .limit(100)
                 .build()
                 .render(RenderingStrategies.MYBATIS3);
         List<BookContent> bookContents=bookContentMapper.selectMany(selectStatement2);
