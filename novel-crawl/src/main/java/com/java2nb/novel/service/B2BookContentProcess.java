@@ -18,8 +18,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.*;
 
 import static com.java2nb.novel.mapper.BookContentDynamicSqlSupport.bookContent;
 import static com.java2nb.novel.mapper.BookIndexDynamicSqlSupport.bookIndex;
@@ -49,7 +48,12 @@ public class B2BookContentProcess {
     @Autowired
     private BookIndexMapper bookIndexMapper;
 
-
+    private static ThreadPoolExecutor executor;
+    static {
+        executor= new ThreadPoolExecutor(10, 10,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>());
+    }
     @PostConstruct
     public void consumerBookContent(){
 
@@ -65,39 +69,49 @@ public class B2BookContentProcess {
         List<BookIndex>  list =  bookIndexMapper.selectMany(selectStatement);
         while (list!=null&&list.size()>0){
             for(BookIndex bookIndex: list){
-                SelectStatementProvider selectStatement2 = select(BookContentDynamicSqlSupport.id, BookContentDynamicSqlSupport.content)
-                        .from(bookContent)
-                        .where(BookContentDynamicSqlSupport.indexId, isEqualTo(bookIndex.getId()))
-                        .limit(1)
-                        .build()
-                        .render(RenderingStrategies.MYBATIS3);
-                List<BookContent> bookContents=bookContentMapper.selectMany(selectStatement2);
-                if(bookContents.size()>0){
-                    BookContent bookContent=bookContents.get(0);
-                    Long bookId=bookContent.getBookId();
-                    //消费逻辑
-                    String fileSrc=bookId+"/"+bookContent.getIndexId()+".txt";
-                    FileUtil.writeContentToFile(fileSavePath,fileSrc,bookContent.getContent());
-                    File file = new File(fileSavePath + fileSrc);
-                    try {
-                        //上传到oss 减少磁盘空间
-                        if (file.exists()) {
-                            b2FileUtil.uploadSmallFile(file, fileSrc);
-                            log.info("上传b2成功"+fileSrc);
-                            try {
-                                bookContentMapper.delete(
-                                        deleteFrom(BookContentDynamicSqlSupport.bookContent)
-                                                .where(BookContentDynamicSqlSupport.indexId, isEqualTo(bookContent.getIndexId())
-                                                ).build().render(RenderingStrategies.MYBATIS3));
-                            }catch (Exception e){
+                executor.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        try{
+                            SelectStatementProvider selectStatement2 = select(BookContentDynamicSqlSupport.id, BookContentDynamicSqlSupport.content)
+                                    .from(bookContent)
+                                    .where(BookContentDynamicSqlSupport.indexId, isEqualTo(bookIndex.getId()))
+                                    .limit(1)
+                                    .build()
+                                    .render(RenderingStrategies.MYBATIS3);
+                            List<BookContent> bookContents=bookContentMapper.selectMany(selectStatement2);
+                            if(bookContents.size()>0){
+                                BookContent bookContent=bookContents.get(0);
+                                Long bookId=bookContent.getBookId();
+                                //消费逻辑
+                                String fileSrc=bookId+"/"+bookContent.getIndexId()+".txt";
+                                FileUtil.writeContentToFile(fileSavePath,fileSrc,bookContent.getContent());
+                                File file = new File(fileSavePath + fileSrc);
+                                try {
+                                    //上传到oss 减少磁盘空间
+                                    if (file.exists()) {
+                                        b2FileUtil.uploadSmallFile(file, fileSrc);
+                                        log.info("上传b2成功"+fileSrc);
+                                        try {
+                                            bookContentMapper.delete(
+                                                    deleteFrom(BookContentDynamicSqlSupport.bookContent)
+                                                            .where(BookContentDynamicSqlSupport.indexId, isEqualTo(bookContent.getIndexId())
+                                                            ).build().render(RenderingStrategies.MYBATIS3));
+                                        }catch (Exception e){
+
+                                        }
+                                    }
+                                }finally {
+                                    file.delete();
+                                }
 
                             }
-                        }
-                    }finally {
-                        file.delete();
-                    }
+                        }catch (Exception e){
 
-                }
+                        }
+                    }
+                });
+
 
             }
         }
