@@ -48,12 +48,20 @@ public class B2FileBookContentServiceImpl implements BookContentService {
 
     @Override
     public void updateBookContent(BookContent bookContent,Long bookId) {
-        bookContentMapper.update(update(BookContentDynamicSqlSupport.bookContent)
+
+       int r= bookContentMapper.update(update(BookContentDynamicSqlSupport.bookContent)
                 .set(BookContentDynamicSqlSupport.content)
                 .equalTo(bookContent.getContent())
                 .where(BookContentDynamicSqlSupport.indexId,isEqualTo(bookContent.getIndexId()))
                 .build()
                 .render(RenderingStrategies.MYBATIS3));
+       if(r<1){
+           try {
+               bookContentMapper.insertSelective(bookContent);
+           }catch (Exception e){
+
+           }
+       }
       //  b2BookContentMq.producerBookContent(bookContent,bookId);
     }
 }
