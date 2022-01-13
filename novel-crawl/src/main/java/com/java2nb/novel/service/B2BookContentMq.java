@@ -33,7 +33,7 @@ public class B2BookContentMq {
         blockingQueue.add(bookContent);
     }
 
-    @PostConstruct
+   // @PostConstruct
     public void consumerBookContent(){
 
         Consumer c2 = new Consumer(blockingQueue);
