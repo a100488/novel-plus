@@ -191,6 +191,7 @@ public class CrawlServiceImpl implements CrawlService {
                 }
 
             }
+
             singleTask.setSourceBookId(bookUrl);
             CrawlParser.parseBook(ruleBean, bookUrl,book -> {
                 singleTask.setAuthorName(book.getAuthorName());
@@ -198,6 +199,13 @@ public class CrawlServiceImpl implements CrawlService {
             });
             if(singleTask.getBookName()==null||singleTask.getBookName().length()<1){
                 throw new BusinessException(ResponseStatus.BOOK_EXISTS2);
+            }
+            if(crawlSingleTaskMapper.count(countFrom(CrawlSingleTaskDynamicSqlSupport.crawlSingleTask)
+                    .where(CrawlSingleTaskDynamicSqlSupport.bookName, isEqualTo(singleTask.getBookName()))
+                    .and(BookDynamicSqlSupport.authorName, isEqualTo(singleTask.getAuthorName()))
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3)) > 0){
+                throw new BusinessException(ResponseStatus.BOOK_EXISTS);
             }
             if (bookService.queryIsExistByBookNameAndAuthorName(singleTask.getBookName(), singleTask.getAuthorName())) {
                 throw new BusinessException(ResponseStatus.BOOK_EXISTS);
