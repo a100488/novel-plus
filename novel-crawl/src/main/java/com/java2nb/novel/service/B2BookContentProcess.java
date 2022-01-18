@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -49,94 +50,119 @@ public class B2BookContentProcess {
     private static ThreadPoolExecutor executor;
 
     static {
-        executor = new ThreadPoolExecutor(10, 10,
+        executor = new ThreadPoolExecutor(30, 30,
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>());
     }
 
     @PostConstruct
     public void consumerBookContent() {
-        while (true) {
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                while (true) {
 
 
-            int page = 100;
+                    int page = 400;
 
-            SelectStatementProvider selectStatement2 = select(BookContentDynamicSqlSupport.id, BookContentDynamicSqlSupport.content, BookContentDynamicSqlSupport.indexId)
-                    .from(bookContent)
-                    .limit(page)
-                    .build()
-                    .render(RenderingStrategies.MYBATIS3);
-            List<BookContent> bookContents = bookContentMapper.selectMany(selectStatement2);
+                    SelectStatementProvider selectStatement2 = select(BookContentDynamicSqlSupport.id, BookContentDynamicSqlSupport.content, BookContentDynamicSqlSupport.indexId)
+                            .from(bookContent)
+                            .limit(page)
+                            .build()
+                            .render(RenderingStrategies.MYBATIS3);
+                    List<BookContent> bookContents = bookContentMapper.selectMany(selectStatement2);
 
-            while (bookContents != null && bookContents.size() > 0) {
-                CountDownLatch countDownLatch = new CountDownLatch(page);
-                for (BookContent bookContent : bookContents) {
-                    executor.submit(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                SelectStatementProvider selectStatement = select(BookIndexDynamicSqlSupport.id, BookIndexDynamicSqlSupport.bookId, BookIndexDynamicSqlSupport.indexNum, BookIndexDynamicSqlSupport.indexName, BookIndexDynamicSqlSupport.updateTime, BookIndexDynamicSqlSupport.isVip)
-                                        .from(bookIndex)
-                                        .where(BookIndexDynamicSqlSupport.id, isEqualTo(bookContent.getIndexId()))
-                                        .limit(1)
-                                        .build()
-                                        .render(RenderingStrategies.MYBATIS3);
-
-                                List<BookIndex> bookIndexList = bookIndexMapper.selectMany(selectStatement);
-                                if (bookIndexList.size() > 0) {
-                                    BookIndex bookIndex2 = bookIndexList.get(0);
-                                    Long bookId = bookIndex2.getBookId();
-                                    //消费逻辑
-                                    String fileSrc = bookId + "/" + bookContent.getIndexId() + ".txt";
-                                    FileUtil.writeContentToFile(fileSavePath, fileSrc, bookContent.getContent());
-                                    File file = new File(fileSavePath + fileSrc);
+                    while (bookContents != null && bookContents.size() > 0) {
+                        CountDownLatch countDownLatch = new CountDownLatch(bookContents.size());
+                        List<Long> notinlist=new ArrayList<>();
+                        for (BookContent bookContent : bookContents) {
+                            notinlist.add(bookContent.getIndexId());
+                            executor.submit(new Runnable() {
+                                @Override
+                                public void run() {
                                     try {
-                                        //上传到oss 减少磁盘空间
-                                        if (file.exists()) {
-                                            b2FileUtil.uploadSmallFile(file, fileSrc);
-                                            log.info("上传b2成功" + fileSrc);
+                                        SelectStatementProvider selectStatement = select(BookIndexDynamicSqlSupport.id, BookIndexDynamicSqlSupport.bookId, BookIndexDynamicSqlSupport.indexNum, BookIndexDynamicSqlSupport.indexName, BookIndexDynamicSqlSupport.updateTime, BookIndexDynamicSqlSupport.isVip)
+                                                .from(bookIndex)
+                                                .where(BookIndexDynamicSqlSupport.id, isEqualTo(bookContent.getIndexId()))
+                                                .limit(1)
+                                                .build()
+                                                .render(RenderingStrategies.MYBATIS3);
+
+                                        List<BookIndex> bookIndexList = bookIndexMapper.selectMany(selectStatement);
+                                        if (bookIndexList.size() > 0) {
+                                            BookIndex bookIndex2 = bookIndexList.get(0);
+                                            Long bookId = bookIndex2.getBookId();
+                                            //消费逻辑
+                                            String fileSrc = bookId + "/" + bookContent.getIndexId() + ".txt";
+                                            FileUtil.writeContentToFile(fileSavePath, fileSrc, bookContent.getContent());
+                                            File file = new File(fileSavePath + fileSrc);
                                             try {
-                                                bookIndex2.setStorageType("b2");
-                                                bookIndexMapper.updateByPrimaryKey(bookIndex2);
-                                                bookContentMapper.delete(
-                                                        deleteFrom(BookContentDynamicSqlSupport.bookContent)
-                                                                .where(BookContentDynamicSqlSupport.indexId, isEqualTo(bookContent.getIndexId())
-                                                                ).build().render(RenderingStrategies.MYBATIS3));
+                                                //上传到oss 减少磁盘空间
+                                                if (file.exists()) {
+                                                    b2FileUtil.uploadSmallFile(file, fileSrc);
+                                                    log.info("上传b2成功" + fileSrc);
+                                                    try {
+                                                        bookIndex2.setStorageType("b2");
+                                                        bookIndexMapper.updateByPrimaryKeySelective(bookIndex2);
+                                                       int r= bookContentMapper.delete(
+                                                                deleteFrom(BookContentDynamicSqlSupport.bookContent)
+                                                                        .where(BookContentDynamicSqlSupport.indexId, isEqualTo(bookContent.getIndexId())
+                                                                        ).build().render(RenderingStrategies.MYBATIS3));
+                                                        System.out.println(r);
 
-                                            } catch (Exception e) {
+                                                    } catch (Exception e) {
 
+                                                    }
+                                                }
+                                            } finally {
+                                                file.delete();
                                             }
+
                                         }
+                                    } catch (Exception e) {
+
                                     } finally {
-                                        file.delete();
+                                        countDownLatch.countDown();
                                     }
-
                                 }
-                            } catch (Exception e) {
-
-                            } finally {
-                                countDownLatch.countDown();
-                            }
+                            });
                         }
-                    });
-                }
-                try {
-                    countDownLatch.await();
-                    TimeUnit.SECONDS.sleep(10);
-                    log.info("休息10秒");
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                        if(notinlist.size()>0) {
+                            selectStatement2 = select(BookContentDynamicSqlSupport.id, BookContentDynamicSqlSupport.content, BookContentDynamicSqlSupport.indexId)
+                                    .from(bookContent)
+                                    .where(BookContentDynamicSqlSupport.indexId, isNotIn(notinlist))
+                                    .limit(page)
+                                    .build()
+                                    .render(RenderingStrategies.MYBATIS3);
+                        }else{
+                            selectStatement2 = select(BookContentDynamicSqlSupport.id, BookContentDynamicSqlSupport.content, BookContentDynamicSqlSupport.indexId)
+                                    .from(bookContent)
+                                    .limit(page)
+                                    .build()
+                                    .render(RenderingStrategies.MYBATIS3);
+                        }
+                        List<BookContent> bookContentstmp = bookContentMapper.selectMany(selectStatement2);
+                        log.info("预热加载完成"+bookContentstmp.size());
+                        try {
+                            countDownLatch.await();
+                            log.info("休息3秒");
+                            TimeUnit.SECONDS.sleep(3);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
 
-                bookContents = bookContentMapper.selectMany(selectStatement2);
-            }
-            try {
-                TimeUnit.MINUTES.sleep(1);
-                log.info("休息1分钟");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+                        bookContents = bookContentstmp;//bookContentMapper.selectMany(selectStatement2);
+                    }
+                    try {
+                        log.info("休息1分钟");
+                        TimeUnit.MINUTES.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }}).start();
+
 
     }
 

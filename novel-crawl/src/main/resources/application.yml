@@ -7,7 +7,7 @@ server:
 
 spring:
   profiles:
-    active: prod
+    active: dev
 
 #登录用户名密码
 admin:

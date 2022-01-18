@@ -33,8 +33,9 @@ public class B2FileBookContentServiceImpl implements BookContentService {
     private final B2BookContentMq b2BookContentMq;
     @Override
     public void saveBookContent(List<BookContent> bookContentList,Long bookId) {
-
+        log.info(" save bookId "+bookId+"--size"+bookContentList.size());
         bookContentMapper.insertMultiple(bookContentList);
+
        // bookContentList.forEach(bookContent -> b2BookContentMq.producerBookContent(bookContent,bookId));
 
     }
