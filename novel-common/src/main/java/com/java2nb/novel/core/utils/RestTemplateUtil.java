@@ -22,7 +22,9 @@ import java.util.List;
 
 public class RestTemplateUtil {
 
-
+    static {
+        System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2,SSLv3");
+    }
 
     @SneakyThrows
     public static RestTemplate getInstance(String charset) {
@@ -55,8 +57,8 @@ public class RestTemplateUtil {
                 new HttpComponentsClientHttpRequestFactory();
 
         requestFactory.setHttpClient(httpClient);
-        requestFactory.setConnectionRequestTimeout(3000);
-        requestFactory.setConnectTimeout(3000);
+        requestFactory.setConnectionRequestTimeout(31000);
+        requestFactory.setConnectTimeout(31000);
         requestFactory.setReadTimeout(31000);
         RestTemplate restTemplate = new RestTemplate(requestFactory);
         List<HttpMessageConverter<?>> list = restTemplate.getMessageConverters();

@@ -75,7 +75,7 @@ sharding:
 
 logging:
   level:
-    root: warn
+    root: info
     com.java2nb: info
 
 content:

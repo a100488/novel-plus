@@ -38,14 +38,14 @@ public class StarterListener implements ServletContextListener {
 
     private static ThreadPoolExecutor executor;
     static {
-        executor= new ThreadPoolExecutor(10, 10,
+        executor= new ThreadPoolExecutor(1, 1,
                 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>());
     }
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         cacheService.del("runPachong");
-        for (int i = 0; i < updateThreadCount ; i++) {
+        for (int i = 0; i < 1 ; i++) {
             new Thread(() -> {
                 log.info("程序启动,开始执行自动更新线程。。。");
                 while (true) {

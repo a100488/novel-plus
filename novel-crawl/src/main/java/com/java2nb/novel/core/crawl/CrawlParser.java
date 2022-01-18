@@ -10,6 +10,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.*;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.text.SimpleDateFormat;
@@ -37,7 +38,29 @@ public class CrawlParser {
     public static void parseBook(RuleBean ruleBean, String bookId, CrawlBookHandler handler) {
         Book book = new Book();
         String bookDetailUrl = ruleBean.getBookDetailUrl().replace("{bookId}", bookId);
-        String bookDetailHtml = getByHttpClientWithChrome(bookDetailUrl);
+
+        String bookDetailHtml =null;
+        try {
+            bookDetailHtml = getByHttpClientWithChrome(bookDetailUrl);
+        }catch (HttpServerErrorException e){
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e2) {
+                e.printStackTrace();
+            }
+            try {
+                bookDetailHtml = getByHttpClientWithChrome(bookDetailUrl);
+            }catch (HttpServerErrorException e3){
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e2) {
+                    e.printStackTrace();
+                }
+                bookDetailHtml = getByHttpClientWithChrome(bookDetailUrl);
+            }
+        }
+
+
         if (bookDetailHtml != null) {
             Pattern bookNamePatten = compile(ruleBean.getBookNamePatten());
             Matcher bookNameMatch = bookNamePatten.matcher(bookDetailHtml);
@@ -92,6 +115,7 @@ public class CrawlParser {
                     //过滤掉简介中的特殊标签
                     desc = desc.replaceAll("<a[^<]+</a>", "")
                             .replaceAll("<font[^<]+</font>", "")
+                            .replaceAll("<span[^<]+</span>", "")
                             .replaceAll("<p>\\s*</p>", "")
                             .replaceAll("<p>", "")
                             .replaceAll("</p>", "<br/>");
@@ -207,7 +231,18 @@ public class CrawlParser {
                     String contentUrl = bookContentUrl.replace("{bookId}", sourceBookId).replace("{indexId}", sourceIndexId);
 
                     //查询章节内容
-                    String contentHtml = getByHttpClientWithChrome(contentUrl);
+
+                    String contentHtml =null;
+                    try {
+                         contentHtml = getByHttpClientWithChrome(contentUrl);
+                    }catch (Exception e){
+                        try {
+                            Thread.sleep(3000);
+                        } catch (InterruptedException e2) {
+                            e.printStackTrace();
+                        }
+                        contentHtml = getByHttpClientWithChrome(contentUrl);
+                    }
                     if (contentHtml != null && !contentHtml.contains("正在手打中")) {
                         String content = contentHtml.substring(contentHtml.indexOf(ruleBean.getContentStart()) + ruleBean.getContentStart().length());
                         content = content.substring(0, content.indexOf(ruleBean.getContentEnd()));
