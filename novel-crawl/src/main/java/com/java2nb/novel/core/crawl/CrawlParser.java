@@ -115,7 +115,6 @@ public class CrawlParser {
                     //过滤掉简介中的特殊标签
                     desc = desc.replaceAll("<a[^<]+</a>", "")
                             .replaceAll("<font[^<]+</font>", "")
-                            .replaceAll("<span[^<]+</span>", "")
                             .replaceAll("<p>\\s*</p>", "")
                             .replaceAll("<p>", "")
                             .replaceAll("</p>", "<br/>");
